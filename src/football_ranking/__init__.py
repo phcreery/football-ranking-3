@@ -1,11 +1,11 @@
-from fastapi.staticfiles import StaticFiles
-import uvicorn
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
+import uvicorn
+
 from .config import logger, uvicorn_config
 from .routers import scores, client
 
-# from fastapi.routing import APIRouter
-from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(root_path="/api/v3")
 
