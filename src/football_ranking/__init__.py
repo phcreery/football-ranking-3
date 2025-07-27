@@ -1,3 +1,4 @@
+from fastapi.staticfiles import StaticFiles
 import uvicorn
 from fastapi import FastAPI
 from .config import logger, uvicorn_config
@@ -18,6 +19,11 @@ app.add_middleware(
 
 app.include_router(scores.router)
 app.include_router(client.router)
+app.mount(
+    "/",
+    StaticFiles(directory="src/football_ranking/routers/static", html=True),
+    name="frontend",
+)
 
 
 def main() -> int:  # pragma: no cover
