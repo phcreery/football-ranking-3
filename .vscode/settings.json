@@ -1,0 +1,6 @@
+{
+    "files.autoSaveWhenNoErrors": true,
+    "files.autoSave": "afterDelay",
+    "editor.formatOnSave": true,
+    "python.analysis.typeCheckingMode": "basic"
+}

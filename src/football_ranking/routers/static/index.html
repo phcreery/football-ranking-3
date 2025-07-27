@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Football Ranking</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Import Datastar -->
+    <script type="module" src="https://cdn.jsdelivr.net/gh/starfederation/datastar@main/bundles/datastar.js"></script>
+    <!-- Import DaisyUI -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+
+<style>
+    .center-text {
+        text-align: center;
+    }
+
+    .right-align {
+        text-align: right;
+    }
+
+    .left-align {
+        text-align: left;
+    }
+</style>
+
+<body data-signals="{year: '2024', classification: 'all', conference: 'all', tab: 'scores'}"
+    data-on-load="@get('/client/load')">
+    <div class="p-4">
+        <h1 class="text-3xl font-bold">Football Ranking</h1>
+        <p class="text-lg">College Football Scores and Rankings</p>
+        <p class="text-sm">Data provided by <a href="https://api.collegefootballdata.com/">College Football Data API</a>
+        </p>
+        <p class="text-sm">Ranking algorithm developed by <a href="https://www.example.com">Lucas Creery</a></p>
+        <p class="text-sm">Source code available on <a href="https://github.com/your-repo">GitHub</a></p>
+        <p>Note: Division iii intentionally excluded from rankings</p>
+    </div>
+    <div class="px-4">
+        <span id="settings">
+            <div class="flex flex-wrap gap-4">
+                <fieldset class="fieldset">
+                    <legend class="fieldset-legend">Year</legend>
+                    <select class="select" id="selectYear" data-bind-year data-on-change="@get('/client/reload')">
+                        <span id="year-options">
+                            <!-- <option>2025</option>
+                            <option>2024</option>
+                            <option>2023</option>
+                            <option>2022</option> -->
+                        </span>
+                    </select>
+                </fieldset>
+                <fieldset class="fieldset">
+                    <legend class="fieldset-legend">Division</legend>
+                    <select class="select" id="selectClassification" data-bind-classification
+                        data-on-change="@get('/client/reload')">
+                        <span id="classification-options">
+                            <option>all</option>
+                            <option>fbs</option>
+                            <option>fcs</option>
+                            <option>iii</option>
+                        </span>
+                    </select>
+                </fieldset>
+                <fieldset class="fieldset">
+                    <legend class="fieldset-legend">Conference</legend>
+                    <select class="select" id="selectConference" data-bind-conference
+                        data-on-change="@get('/client/reload')">
+                        <span id="conference-options">
+                            <option>all</option>
+                        </span>
+                    </select>
+                </fieldset>
+                <fieldset class="fieldset">
+                    <legend class="fieldset-legend">&nbsp;</legend>
+                    <div class="join">
+                        <button class="btn" id="resetFiltersButton"
+                            data-on-click="$year = 2024; $classification = 'all'; $conference = 'all'; @get('/client/reload')">
+                            Reset
+                        </button>
+                        <button class="btn" id="loadScoresButton" data-on-click="@get('/client/reload')">
+                            Reload
+                        </button>
+                    </div>
+                </fieldset>
+            </div>
+        </span>
+        <!-- <p data-text="$year"></p>
+        <p data-text="$classification"></p>
+        <p data-text="$conference"></p>
+        <p data-text="$tab"></p> -->
+    </div>
+    <div class="p-4">
+        <div class="tabs tabs-lift">
+            <input type="radio" name="scores_ranks_tabs" class="tab" aria-label="Scores" checked="checked"
+                data-on-click="$tab = 'scores'; @get('/client/scores')" />
+            <div class="tab-content bg-base-100 border-base-300 p-4">
+                <span id="scoresTable">
+                    <!-- data-on-load="@get('/client/scores')" -->
+                    Loading Scores...
+                </span>
+            </div>
+
+            <input type="radio" name="scores_ranks_tabs" class="tab" aria-label="Ranks"
+                data-on-click="$tab = 'ranks'; @get('/client/ranks')" />
+            <div class="tab-content bg-base-100 border-base-300 p-4">
+                <span id="ranksTable">
+                    <!-- data-on-load="@get('/client/ranks')" -->
+                    Loading Ranks...
+                </span>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
