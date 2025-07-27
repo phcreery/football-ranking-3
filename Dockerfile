@@ -9,11 +9,20 @@ ENV PYTHONDONTWRITEBYTECODE=1
 # Turns off buffering for easier container logging
 ENV PYTHONUNBUFFERED=1
 
+ENV CFBD__API_TOKEN=football_ranking
+
 # Set the working directory in the container
 WORKDIR /app
 
 # Copy the current directory contents into the container at /app
 COPY . /app
+
+#  echo "MY_VAR=$MY_VAR" > /app/.env # Example: writes MY_VAR to /app/.env
+# Copy the .env file to the container
+COPY .env /app/.env
+
+# write to env file
+RUN echo "CFBD__API_TOKEN=$CFBD__API_TOKEN" >> /app/.env
 
 # Install pip requirements
 COPY requirements.lock .
