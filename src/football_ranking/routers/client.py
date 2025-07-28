@@ -29,10 +29,10 @@ def draw_settings(scores: list[dict]) -> str:
     years = [current_year, current_year - 1, current_year - 2, current_year - 3]
     year_select = f"""
     <span id="year-options">
-        <option>{years[0]}</option>
-        <option>{years[1]}</option>
-        <option>{years[2]}</option>
-        <option>{years[3]}</option>
+        <option value="{years[0]}">{years[0]}</option>
+        <option value="{years[1]}">{years[1]}</option>
+        <option value="{years[2]}">{years[2]}</option>
+        <option value="{years[3]}">{years[3]}</option>
     </span>
     """
     # yield year_select
@@ -152,7 +152,7 @@ async def gen_load(
     )
     scores = await fetch_scores(year, classification, conference)
     yield ServerSentEventGenerator.patch_elements(draw_settings(scores))
-    yield ServerSentEventGenerator.patch_signals({year: year})
+    yield ServerSentEventGenerator.patch_signals({"year": year})
     yield ServerSentEventGenerator.patch_elements(
         f"""<span id="scoresTable">{draw_scores_table(scores)}</span>"""
     )
