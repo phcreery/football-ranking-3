@@ -30,12 +30,14 @@
     <div class="p-4">
         <h1 class="text-3xl font-bold">Football Ranking</h1>
         <p class="text-lg">College Football Scores and Rankings</p>
-        <p class="text-sm">Data provided by <a href="https://api.collegefootballdata.com/">College Football Data API</a>
+        <p class="text-sm">Data provided by <a class="link" href="https://api.collegefootballdata.com/">College Football
+                Data API</a>
         </p>
-        <p class="text-sm">Ranking algorithm developed by <a href="https://github.com/lucascreery">Lucas Creery</a></p>
-        <p class="text-sm">Source code available on <a href="https://github.com/phcreery/football-ranking-3">GitHub</a>
+        <p class="text-sm">Ranking algorithm developed by <a class="link" href="https://github.com/lucascreery">Lucas
+                Creery</a></p>
+        <p class="text-sm">Source code available on <a class="link"
+                href="https://github.com/phcreery/football-ranking-3">GitHub</a>
         </p>
-        <p>Note: Division iii intentionally excluded from rankings</p>
     </div>
     <div class="px-4">
         <span id="settings">
@@ -54,7 +56,7 @@
                     </select>
                 </fieldset>
                 <fieldset class="fieldset">
-                    <legend class="fieldset-legend">Division</legend>
+                    <legend class="fieldset-legend">Division*</legend>
                     <select class="select" id="selectClassification" data-bind-classification
                         data-on-change="@get('/client/reload')">
                         <span id="classification-options">
@@ -76,18 +78,19 @@
                 </fieldset>
                 <fieldset class="fieldset">
                     <legend class="fieldset-legend">&nbsp;</legend>
-                    <div class="join">
-                        <button class="btn" id="resetFiltersButton"
-                            data-on-click="$year = 2024; $classification = 'all'; $conference = 'all'; @get('/client/reload')">
-                            Reset
-                        </button>
+                    <div>
                         <button class="btn" id="loadScoresButton" data-on-click="@get('/client/reload')">
                             Reload
+                        </button>
+                        <button class="btn btn-ghost" id="resetFiltersButton"
+                            data-on-click="$year = 2024; $classification = 'all'; $conference = 'all'; @get('/client/reload')">
+                            Reset
                         </button>
                     </div>
                 </fieldset>
             </div>
         </span>
+        <p class="text-sm">*Division iii intentionally excluded from rankings</p>
         <!-- <p data-text="$year"></p>
         <p data-text="$classification"></p>
         <p data-text="$conference"></p>
