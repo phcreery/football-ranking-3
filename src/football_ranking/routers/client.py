@@ -88,7 +88,7 @@ def draw_scores_table(scores: list[dict]):
             <table class="table table-xs table-pin-rows">
                 <thead>
                     <tr>
-                        <th class="right-align">Date</th>
+                        <th class="right-align">Date Played</th>
                         <th class="right-align">Div.</th>
                         <th class="right-align">Conference</th>
                         <th class="right-align">Home Team</th>
@@ -146,7 +146,7 @@ async def gen_load(
 
     year = datetime.now().year
     yield ServerSentEventGenerator.patch_elements(
-        """<span id="scoresTable">
+        """<span id="scores-table">
                     Loading Scores...
                 </span>"""
     )
@@ -154,7 +154,7 @@ async def gen_load(
     yield ServerSentEventGenerator.patch_elements(draw_settings(scores))
     yield ServerSentEventGenerator.patch_signals({"year": year})
     yield ServerSentEventGenerator.patch_elements(
-        f"""<span id="scoresTable">{draw_scores_table(scores)}</span>"""
+        f"""<span id="scores-table">{draw_scores_table(scores)}</span>"""
     )
 
 
@@ -162,14 +162,20 @@ async def gen_scores(
     year: int, classification: str, conference: str
 ) -> AsyncGenerator[DatastarEvent, None]:
     """Generate a Server-Sent Event stream for scores."""
+    # Unload both tables to avoid slow interactivity
     yield ServerSentEventGenerator.patch_elements(
-        """<span id="scoresTable">
+        """<span id="ranks-table">
+                    Loading Ranks...
+                </span>"""
+    )
+    yield ServerSentEventGenerator.patch_elements(
+        """<span id="scores-table">
                     Loading Scores...
                 </span>"""
     )
     scores = await fetch_scores(year, classification, conference)
     yield ServerSentEventGenerator.patch_elements(
-        f"""<span id="scoresTable">{draw_scores_table(scores)}</span>"""
+        f"""<span id="scores-table">{draw_scores_table(scores)}</span>"""
     )
 
 
@@ -177,18 +183,24 @@ async def gen_ranks(
     year: int, classification: str, conference: str
 ) -> AsyncGenerator[DatastarEvent, None]:
     """Generate a Server-Sent Event stream for ranks."""
+    # Unload both tables to avoid slow interactivity
     yield ServerSentEventGenerator.patch_elements(
-        """<span id="ranksTable">
+        """<span id="scores-table">
+                    Loading Scores...
+                </span>"""
+    )
+    yield ServerSentEventGenerator.patch_elements(
+        """<span id="ranks-table">
                     Loading Ranks...
                 </span>"""
     )
-    scores = await fetch_scores(year, classification, conference)
+    scores = await fetch_scores(year, classification, conference, exclusive=True)
     ranking_dict = rank(scores)
     # Here you would compute the ranks based on the scores
     # For now, we will just return the scores as a placeholder
     ranks = draw_ranks_table(ranking_dict)  # Replace with actual rank computation
     yield ServerSentEventGenerator.patch_elements(
-        f"""<span id="ranksTable">{ranks}</span>"""
+        f"""<span id="ranks-table">{ranks}</span>"""
     )
 
 
@@ -211,13 +223,16 @@ def handle_signals(signals: ReadSignals):
             f"Invalid classification: {classification}. Must be one of 'all', 'fbs', 'fcs', or 'ii'."
         )
     conference = signals.get("conference", "all")
-    return year, classification, conference
+    tab = signals.get("tab", "scores")
+    if tab not in ["scores", "ranks"]:
+        raise ValueError(f"Invalid tab: {tab}. Must be 'scores' or 'ranks'.")
+    return year, classification, conference, tab
 
 
 @router.get("/client/load")
 async def handle_get_client_settings(signals: ReadSignals):
     # Handle client settings request.
-    year, classification, conference = handle_signals(signals)
+    year, classification, conference, tab = handle_signals(signals)
     return DatastarResponse(gen_load(year, classification, conference))
 
 
@@ -230,7 +245,7 @@ async def handle_get_client_reload(signals: ReadSignals):
     tab = signals.get("tab", "scores")
     if tab not in ["scores", "ranks"]:
         raise ValueError(f"Invalid tab: {tab}. Must be 'scores' or 'ranks'.")
-    year, classification, conference = handle_signals(signals)
+    year, classification, conference, tab = handle_signals(signals)
     if tab == "scores":
         return DatastarResponse(gen_scores(year, classification, conference))
     else:
@@ -239,11 +254,11 @@ async def handle_get_client_reload(signals: ReadSignals):
 
 @router.get("/client/scores")
 async def handle_get_client_scores(signals: ReadSignals):
-    year, classification, conference = handle_signals(signals)
+    year, classification, conference, tab = handle_signals(signals)
     return DatastarResponse(gen_scores(year, classification, conference))
 
 
 @router.get("/client/ranks")
 async def handle_get_client_ranks(signals: ReadSignals):
-    year, classification, conference = handle_signals(signals)
+    year, classification, conference, tab = handle_signals(signals)
     return DatastarResponse(gen_ranks(year, classification, conference))

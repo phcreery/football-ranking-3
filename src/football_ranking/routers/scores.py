@@ -8,18 +8,51 @@ from ..compute.rank import rank
 router = APIRouter()
 
 
-async def patch_filter_scores(scores: list[dict], conference: str | None) -> list[dict]:
-    if not conference or "all" in conference:
-        return scores
-    return [
-        game
-        for game in scores
-        if game["homeConference"] == conference and game["awayConference"] == conference
-    ]
+async def patch_filter_scores(
+    scores: list[dict],
+    classification: str | None,
+    conference: str | None,
+    exclusive: bool = False,
+) -> list[dict]:
+    if exclusive:
+        if conference and conference != "all":
+            scores = [
+                game
+                for game in scores
+                if game["homeConference"] == conference
+                and game["awayConference"] == conference
+            ]
+        if classification and classification != "all":
+            scores = [
+                game
+                for game in scores
+                if game["homeClassification"] == classification
+                and game["awayClassification"] == classification
+            ]
+    else:
+        if conference and conference != "all":
+            scores = [
+                game
+                for game in scores
+                if game["homeConference"] == conference
+                or game["awayConference"] == conference
+            ]
+        if classification and classification != "all":
+            scores = [
+                game
+                for game in scores
+                if game["homeClassification"] == classification
+                or game["awayClassification"] == classification
+            ]
+    # logger.info(f"Filtered scores: {len(scores)} games for conference {conference}")
+    return scores
 
 
 async def fetch_scores(
-    year: int, classification: str | None = None, conference: str | None = None
+    year: int,
+    classification: str | None = None,
+    conference: str | None = None,
+    exclusive: bool = False,
 ) -> list[dict]:
     """Fetch scores for a given year and classification."""
     URL = f"https://api.collegefootballdata.com:443/games?year={year}"
@@ -66,7 +99,7 @@ async def fetch_scores(
             and (game["awayClassification"] in allowed_divisions)
         ]
 
-    scores = await patch_filter_scores(scores, conference)
+    scores = await patch_filter_scores(scores, classification, conference, exclusive)
 
     return scores
 

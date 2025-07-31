@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 
 <head>
     <title>Football Ranking</title>
@@ -25,7 +25,7 @@
     }
 </style>
 
-<body data-signals="{year: '2024', classification: 'all', conference: 'all', tab: 'scores'}"
+<body data-signals="{year: 2024, classification: 'all', conference: 'all', tab: 'scores'}"
     data-on-load="@get('/client/load')">
     <div class="p-4">
         <h1 class="text-3xl font-bold">Football Ranking</h1>
@@ -63,7 +63,7 @@
                             <option>all</option>
                             <option>fbs</option>
                             <option>fcs</option>
-                            <option>iii</option>
+                            <option>ii</option>
                         </span>
                     </select>
                 </fieldset>
@@ -79,7 +79,7 @@
                 <fieldset class="fieldset">
                     <legend class="fieldset-legend">&nbsp;</legend>
                     <div>
-                        <button class="btn" id="loadScoresButton" data-on-click="@get('/client/reload')">
+                        <button class="btn" id="loadScoresButton" data-on-click="@get('/client/load')">
                             Reload
                         </button>
                         <button class="btn btn-ghost" id="resetFiltersButton"
@@ -99,9 +99,9 @@
     <div class="p-4">
         <div class="tabs tabs-lift">
             <input type="radio" name="scores_ranks_tabs" class="tab" aria-label="Scores" checked="checked"
-                data-on-click="$tab = 'scores'; @get('/client/scores')" />
+                data-on-click="$tab = 'scores';  @get('/client/scores')" />
             <div class="tab-content bg-base-100 border-base-300 p-4">
-                <span id="scoresTable">
+                <span id="scores-table">
                     <!-- data-on-load="@get('/client/scores')" -->
                     Loading Scores...
                 </span>
@@ -110,7 +110,7 @@
             <input type="radio" name="scores_ranks_tabs" class="tab" aria-label="Ranks"
                 data-on-click="$tab = 'ranks'; @get('/client/ranks')" />
             <div class="tab-content bg-base-100 border-base-300 p-4">
-                <span id="ranksTable">
+                <span id="ranks-table">
                     <!-- data-on-load="@get('/client/ranks')" -->
                     Loading Ranks...
                 </span>
