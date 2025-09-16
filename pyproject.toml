@@ -35,9 +35,4 @@ build-backend = "hatchling.build"
 [project.scripts]
 # the cmd must be a String
 # project scripts will be compiled into the executable file
-"start" = "football_ranking.__main__:main"
-
-# [tool.uv.scripts]
-# # the cmd can be a String or an array of args
-# # rye scripts will not be compiled into the executable file
-# "dev" = { cmd = "python -m football_ranking", env = { "RELOAD" = "True", "LOG_LEVEL" = "debug" } }
+"dev" = "football_ranking:main"

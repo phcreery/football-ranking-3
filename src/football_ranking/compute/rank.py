@@ -46,17 +46,17 @@ def rank(data: list[Any]):
     # logger.info(data)
     # Generate Teams list
     teams = []
-    divisions = []
+    classifications = []
     conferences = []
     for game in data:
         if game["homeTeam"] not in teams:
             teams.append(game["homeTeam"])
-            divisions.append(game["homeClassification"])
+            classifications.append(game["homeClassification"])
             conferences.append(game["homeConference"])
 
         if game["awayTeam"] not in teams:
             teams.append(game["awayTeam"])
-            divisions.append(game["awayClassification"])
+            classifications.append(game["awayClassification"])
             conferences.append(game["awayConference"])
 
     # Generate game matrix
@@ -83,11 +83,11 @@ def rank(data: list[Any]):
         {
             "team": team,
             "rating": rank,
-            "division": division,
+            "classification": classification,
             "conference": conference,
         }
-        for team, rank, division, conference in zip(
-            teams, ranking, divisions, conferences
+        for team, rank, classification, conference in zip(
+            teams, ranking, classifications, conferences
         )
     ]
 
@@ -98,4 +98,25 @@ def rank(data: list[Any]):
         team["rank"] = i + 1
 
     # print(ranking_dict)
+    return ranking_dict
+
+def filter_ranks(
+    ranking_dict: list[dict],
+    classification: str | None,
+    conference: str | None
+) -> list[dict]:
+    if conference and conference != "all":
+        ranking_dict = [
+            game
+            for game in ranking_dict
+            if game["conference"] == conference
+        ]
+    if classification and classification != "all":
+        ranking_dict = [
+            game
+            for game in ranking_dict
+            if game["classification"] == classification
+        ]
+
+    # logger.info(f"Filtered ranks: {len(ranking_dict)}")
     return ranking_dict

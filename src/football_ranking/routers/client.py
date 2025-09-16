@@ -10,7 +10,7 @@ from fastapi import APIRouter
 from fastapi.responses import FileResponse
 
 from ..routers.scores import fetch_scores
-from ..compute.rank import rank
+from ..compute.rank import rank, filter_ranks
 from ..config import logger
 
 router = APIRouter()
@@ -116,7 +116,7 @@ def draw_ranks_table(ranks: list[dict]):
         table_rows += f"""<tr>
             <td class="right-align">{team["rank"]}</td>
             <td class="left-align">{team["team"]}</td>
-            <td class="left-align">{team["division"]}</td>
+            <td class="left-align">{team["classification"]}</td>
             <td class="left-align">{team["conference"]}</td>
             <td class="left-align">{team["rating"]}</td>
         </tr>"""
@@ -194,8 +194,10 @@ async def gen_ranks(
                     Loading Ranks...
                 </span>"""
     )
-    scores = await fetch_scores(year, classification, conference, exclusive=True)
+    # scores = await fetch_scores(year, classification, conference, exclusive=True)
+    scores = await fetch_scores(year)
     ranking_dict = rank(scores)
+    ranking_dict = filter_ranks(ranking_dict, classification, conference)
     # Here you would compute the ranks based on the scores
     # For now, we will just return the scores as a placeholder
     ranks = draw_ranks_table(ranking_dict)  # Replace with actual rank computation
