@@ -44,6 +44,12 @@ async def patch_filter_scores(
                 if game["homeClassification"] == classification
                 or game["awayClassification"] == classification
             ]
+    # print(scores)
+    scores = [
+        game
+        for game in scores
+        if game["homeTeam"] != "Brown" and game["awayTeam"] != "Brown"
+    ]
     # logger.info(f"Filtered scores: {len(scores)} games for conference {conference}")
     return scores
 
@@ -91,7 +97,7 @@ async def fetch_scores(
         scores = resp.json()
 
         # Filter out division III games
-        allowed_divisions = ["fbs", "fcs", "ii"]
+        allowed_divisions = ["fbs", "fcs"]
         scores = [
             game
             for game in scores

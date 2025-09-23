@@ -79,12 +79,12 @@
                 <fieldset class="fieldset">
                     <legend class="fieldset-legend">&nbsp;</legend>
                     <div>
-                        <button class="btn" id="loadScoresButton" data-on-click="@get('/client/load')">
-                            Reload
-                        </button>
-                        <button class="btn btn-ghost" id="resetFiltersButton"
+                        <button class="btn" id="resetFiltersButton"
                             data-on-click="$year = 2024; $classification = 'all'; $conference = 'all'; @get('/client/reload')">
                             Reset
+                        </button>
+                        <button class="btn" id="loadScoresButton" data-on-click="@get('/client/reload')">
+                            Reload
                         </button>
                     </div>
                 </fieldset>
