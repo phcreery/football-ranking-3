@@ -41,7 +41,7 @@ def compute_ranking(M):
     # Subtract games matrix with diagonal matrix of column sum
     diff = M - np.diag(colsum)
     # compute null-space matrix of the difference
-    rcond = 1e-6
+    rcond = 1e-7
     null_space_dimensions = 1
     while null_space_dimensions == 1:
         rcond *= 10

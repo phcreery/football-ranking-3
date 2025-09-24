@@ -97,7 +97,7 @@ async def fetch_scores(
         scores = resp.json()
 
         # Filter out division III games
-        allowed_divisions = ["fbs", "fcs"]
+        allowed_divisions = ["fbs", "fcs", "ii"]
         scores = [
             game
             for game in scores
