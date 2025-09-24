@@ -6,31 +6,28 @@ from scipy.linalg import null_space
 import sympy as sp
 
 
-def compute_ranking(M):
+def compute_ranking_old(M):
     # Sum of the columns in 1D matrix
     colsum = np.sum(M, axis=0)
     # Subtract games matrix with diagonal matrix of column sum
     diff = M - np.diag(colsum)
     # compute null-space matrix of the difference
-    ranking_matrix = null_space(diff)
+    ranking_matrix = null_space(diff, rcond=1e-2)
     # Take the absolute value of the array
     ranking_matrix = np.absolute(ranking_matrix)
     # print("ranking matrix", ranking_matrix)
 
     # Quick-fix for when null_space returns a matrix size of (x,>1) instead of expected (x,1)
+    print("ranking matrix shape", ranking_matrix.shape)
     if ranking_matrix.shape[1] != 1:
-        # print("uh oh, no bueno")
         new_ranking_matrix = np.array([])
         for row in ranking_matrix:
             best_cell = 0
-            # print(row)
             for cell in row:
                 if cell > best_cell:
                     best_cell = cell
             new_value = np.array([best_cell])
-            # print(new_value)
             new_ranking_matrix = np.append(new_ranking_matrix, new_value, axis=0)
-        # print("new matrix", len(new_ranking_matrix), new_ranking_matrix)
         ranking_matrix = new_ranking_matrix
 
     # Convert to a python List
@@ -38,28 +35,47 @@ def compute_ranking(M):
     return ranking
 
 
-def weird_division(n, d):
+def compute_ranking(M):
+    # Sum of the columns in 1D matrix
+    colsum = np.sum(M, axis=0)
+    # Subtract games matrix with diagonal matrix of column sum
+    diff = M - np.diag(colsum)
+    # compute null-space matrix of the difference
+    rcond = 1e-6
+    null_space_dimensions = 1
+    while null_space_dimensions == 1:
+        rcond *= 10
+        ranking_matrix = null_space(diff, rcond=rcond)
+        null_space_dimensions = ranking_matrix.shape[1]
+        print(f"rcond: {rcond}, null space dimensions: {null_space_dimensions}")
+        if rcond > 1:
+            print("rcond exceeded 1, breaking loop")
+            break
+    ranking_matrix = null_space(diff, rcond=1e-2)
+    # Take the absolute value of the array
+    ranking_matrix = np.absolute(ranking_matrix)
+    # print("ranking matrix", ranking_matrix)
+
+    # Quick-fix for when null_space returns a matrix size of (x,>1) instead of expected (x,1)
+    print("ranking matrix shape", ranking_matrix.shape)
+    if ranking_matrix.shape[1] != 1:
+        new_ranking_matrix = np.array([])
+        for row in ranking_matrix:
+            best_cell = 0
+            for cell in row:
+                if cell > best_cell:
+                    best_cell = cell
+            new_value = np.array([best_cell])
+            new_ranking_matrix = np.append(new_ranking_matrix, new_value, axis=0)
+        ranking_matrix = new_ranking_matrix
+
+    # Convert to a python List
+    ranking = ranking_matrix.flatten().tolist()
+    return ranking
+
+
+def safe_division(n, d):
     return n / d if d else 0
-
-
-def find_linearly_independent_columns_qr(matrix, tolerance=1e-9):
-    """
-    Identifies a set of linearly independent columns using QR decomposition.
-
-    Args:
-        matrix (np.ndarray): The input matrix.
-        tolerance (float): A threshold to consider diagonal elements of R as zero.
-
-    Returns:
-        list: A list of indices of linearly independent columns.
-    """
-    Q, R, P = np.linalg.qr(matrix, mode="economic", pivoting=True)
-    # The diagonal elements of R indicate the "importance" of the corresponding columns.
-    # Columns corresponding to large diagonal elements are linearly independent.
-    # P is the permutation array, indicating the order of columns after pivoting.
-
-    independent_column_indices = P[np.abs(np.diag(R)) > tolerance]
-    return independent_column_indices
 
 
 def rank(data: list[Any]):
@@ -126,19 +142,19 @@ def rank(data: list[Any]):
 
     # Offense Rankings
     rank_offense = compute_ranking(M_offense)
-    # print(f"Rank Offense: {rank_offense} ({len(rank_offense)})")
+    print(f"Rank Offense: {rank_offense} ({len(rank_offense)})")
     # rank_offense_rank = np.linalg.matrix_rank(M_offense, tol=2)
     # print(f"Rank Offense Rank: {rank_offense_rank} ({len(rank_offense)})")
 
     # Defense Rankings
     rank_defense = compute_ranking(M_defense)
-    # print(f"Rank Defense: {rank_defense} ({len(rank_defense)})")
+    print(f"Rank Defense: {rank_defense} ({len(rank_defense)})")
     # rank_defense_rank = np.linalg.matrix_rank(M_defense, tol=2)
     # print(f"Rank Defense Rank: {rank_defense_rank} ({len(rank_defense)})")
 
-    M_offense_svd = np.linalg.svd(a=M_offense)
-    with np.printoptions(threshold=np.inf):
-        print(f"Offense SVD: {M_offense_svd[1]}")
+    # M_offense_svd = np.linalg.svd(a=M_offense)
+    # with np.printoptions(threshold=np.inf):
+    #     print(f"Offense SVD: {M_offense_svd[1]}")
 
     # Find linearly independent columns using QR decomposition
     # _, inds = sp.Matrix(M_offense).rref()
@@ -147,7 +163,7 @@ def rank(data: list[Any]):
     # print(f"Linearly independent rows Offense: {inds} (length {len(inds)})")
 
     # Combine Offense and Defense Rankings
-    ranking = [weird_division(i, j) for i, j in zip(rank_offense, rank_defense)]
+    ranking = [safe_division(i, j) for i, j in zip(rank_offense, rank_defense)]
 
     # Create dict and combine values of teams and ranking
     # ranking_dict = {}

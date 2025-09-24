@@ -194,10 +194,10 @@ async def gen_ranks(
                     Loading Ranks...
                 </span>"""
     )
-    scores = await fetch_scores(year, classification, conference, exclusive=True)
-    # scores = await fetch_scores(year)
+    # scores = await fetch_scores(year, classification, conference, exclusive=True)
+    scores = await fetch_scores(year)
     ranking_dict = rank(scores)
-    # ranking_dict = filter_ranks(ranking_dict, classification, conference)
+    ranking_dict = filter_ranks(ranking_dict, classification, conference)
     # Here you would compute the ranks based on the scores
     # For now, we will just return the scores as a placeholder
     ranks = draw_ranks_table(ranking_dict)  # Replace with actual rank computation
