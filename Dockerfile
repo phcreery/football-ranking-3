@@ -1,40 +1,34 @@
 # For more information, please refer to https://aka.ms/vscode-docker-python
-FROM python:3-slim
+# Python is pinned: the uv.lock versions of pandas/scipy have no cp314 wheels,
+# so a floating `python:3-slim` tag makes uv build them from source (no compiler).
+FROM python:3.13-slim
 
-RUN pip install uv
+# Keeps Python from generating .pyc files in the container, turns off buffering
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    CFBD__API_TOKEN=football_ranking \
+    UV_LINK_MODE=copy
 
-# Keeps Python from generating .pyc files in the container
-ENV PYTHONDONTWRITEBYTECODE=1
+# uv is the project's package manager
+RUN pip install --no-cache-dir uv
 
-# Turns off buffering for easier container logging
-ENV PYTHONUNBUFFERED=1
-
-ENV CFBD__API_TOKEN=football_ranking
-
-# Set the working directory in the container
 WORKDIR /app
 
-# Copy the current directory contents into the container at /app
+# Dependencies first: this layer only rebuilds when the lockfile changes
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen --no-dev --no-install-project
+
+# Copy the application and install it into the same environment
 COPY . /app
+RUN uv sync --frozen --no-dev
 
-#  echo "MY_VAR=$MY_VAR" > /app/.env # Example: writes MY_VAR to /app/.env
-# Copy the .env file to the container
-# COPY .env /app/.env
-# touch .env
-RUN touch /app/.env
-
-# write to env file
-RUN echo "CFBD__API_TOKEN=$CFBD__API_TOKEN" >> /app/.env
-
-# Install pip requirements
-COPY requirements.lock .
-# RUN python -m pip install -r requirements.lock
-RUN uv pip install --no-cache --system -r requirements.lock
-# RUN uv sync --frozen
+# Use the project's virtual environment
+ENV PATH="/app/.venv/bin:$PATH"
 
 # Creates a non-root user with an explicit UID and adds permission to access the /app folder
 # For more info, please refer to https://aka.ms/vscode-docker-python-configure-containers
-RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /app
+RUN adduser -u 5678 --disabled-password --gecos "" appuser \
+    && chown -R appuser:appuser /app
 USER appuser
 
 # Make port available to the world outside this container
