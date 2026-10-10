@@ -19,7 +19,9 @@ COPY . /app
 
 #  echo "MY_VAR=$MY_VAR" > /app/.env # Example: writes MY_VAR to /app/.env
 # Copy the .env file to the container
-COPY .env /app/.env
+# COPY .env /app/.env
+# touch .env
+RUN touch /app/.env
 
 # write to env file
 RUN echo "CFBD__API_TOKEN=$CFBD__API_TOKEN" >> /app/.env
