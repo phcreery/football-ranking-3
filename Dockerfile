@@ -3,6 +3,11 @@
 # so a floating `python:3-slim` tag makes uv build them from source (no compiler).
 FROM python:3.13-slim
 
+# uv must use the interpreter shipped in this image; `.python-version` (3.10.15)
+# would otherwise make uv download its own CPython into /root, which `appuser` cannot read.
+ENV UV_PYTHON=/usr/local/bin/python3.13 \
+    UV_PYTHON_DOWNLOADS=never
+
 # Keeps Python from generating .pyc files in the container, turns off buffering
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
